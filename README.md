@@ -75,3 +75,46 @@ $ docker compose build web
 `ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
 
 `DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+
+### Работа с упрощенным Kubernetes-кластером (Minikube)
+
+Установите [VirtualBox](https://www.virtualbox.org/wiki/Downloads), [Minikube](https://kubernetes.io/ru/docs/tasks/tools/install-minikube/), [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/).
+Для запуска Minikube выполните:
+
+```
+minikube start --driver=virtualbox --no-vtx-check
+```
+Чтобы убедиться, что все запустилось выполните команду:
+``` kubectl cluster-info ```
+Чтобы управлять докером внутри кластера выполните команду в зависимости от вашей ОС:
+``` minikube docker-env --shell powershell | Invoke-Expression ```
+``` eval $(minikube docker-env) ```
+
+Теперь нам необходимо загрузить докер-образ внутрь нашего кластера.
+Пройдите в директорию с вашим DockerFile или файлом docker-compose (я использовал вариант с докер-компос)
+Лучше сперва проверить образы в Докере ``` docker images ```.
+``` docker compose build ```
+Проверьте снова, образ должен появиться не локально , а именно в докере кластера ``` minikube image ls ```.
+Результат: ``` docker.io/library/django_app:latest ```
+
+### Создание Secrets
+
+Перед создаем "Secret", создайте локально файл .env и заполните его. Пример:
+
+```
+SECRET_KEY=test
+DATABASE_URL=postgres://test...
+DEBUG=True
+ALLOWED_HOSTS=*
+```
+
+Далее выпоните команду создания "Secret" из этой директории, где лежит файл.
+``` kubectl create secret generic django-secret --from-env-file=.env ```
+
+Дополните свой манифест файл:
+```
+envFrom:
+        - secretRef:
+            name: django-secret
+```
+Для просмотра списка секретов, выполните:  ``` kubectl get secrets ```
