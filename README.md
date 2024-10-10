@@ -87,15 +87,27 @@ minikube start --driver=virtualbox --no-vtx-check
 Чтобы убедиться, что все запустилось выполните команду:
 ``` kubectl cluster-info ```
 Чтобы управлять докером внутри кластера выполните команду в зависимости от вашей ОС:
-``` minikube docker-env --shell powershell | Invoke-Expression ```
-``` eval $(minikube docker-env) ```
+
+``` 
+minikube docker-env --shell powershell | Invoke-Expression 
+```
+
+``` 
+eval $(minikube docker-env) 
+```
 
 Теперь нам необходимо загрузить докер-образ внутрь нашего кластера.
 Пройдите в директорию с вашим DockerFile или файлом docker-compose (я использовал вариант с докер-компос)
 Лучше сперва проверить образы в Докере ``` docker images ```.
-``` docker compose build ```
+
+``` 
+docker compose build 
+```
 Проверьте снова, образ должен появиться не локально , а именно в докере кластера ``` minikube image ls ```.
-Результат: ``` docker.io/library/django_app:latest ```
+Результат: 
+``` 
+docker.io/library/django_app:latest 
+```
 
 ### Создание Secrets
 
@@ -109,7 +121,9 @@ ALLOWED_HOSTS=*
 ```
 
 Далее выпоните команду создания "Secret" из этой директории, где лежит файл.
-``` kubectl create secret generic django-secret --from-env-file=.env ```
+``` 
+kubectl create secret generic django-secret --from-env-file=.env 
+```
 
 Дополните свой манифест файл:
 ```
