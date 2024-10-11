@@ -131,4 +131,22 @@ envFrom:
         - secretRef:
             name: django-secret
 ```
-Для просмотра списка секретов, выполните:  ``` kubectl get secrets ```
+Для просмотра списка секретов, выполните:  
+``` kubectl get secrets ```
+
+### Работа с Ingress
+
+Minikube поставляется с предустановленным Ingress-контроллером, но он по умолчанию отключен. Чтобы его включить, выполните команду:
+```
+minikube addons enable ingress
+```
+Примените Ingress и Deployment:
+```
+kubectl apply -f ingress_v1.yaml
+kubectl apply -f deploy_django_v2.yaml
+```
+
+Добавьте запись в /etc/hosts , если используете Windows файл лежит в этой дерриктории (C:\Windows\System32\drivers\etc). Добавьте в файл такое содержание:
+```
+<minikube-ip> example.com
+```
