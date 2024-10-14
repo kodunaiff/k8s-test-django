@@ -150,3 +150,22 @@ kubectl apply -f deploy_django_v2.yaml
 ```
 <minikube-ip> example.com
 ```
+
+### Работа с CronJob
+
+Для очистки сессий раз в месяц, воспользуйтесь командой:
+```
+kubectl apply -f kubectl apply -f cron_dj_clearsession.yaml
+
+kubectl get cronjobs
+```
+
+
+Для запуска в любой момент времени Job из CronJob выполните команду:
+
+```
+kubectl create job --from=cronjob/django-clearsessions dj-clear -n default
+
+kubectl get jobs
+```
+
