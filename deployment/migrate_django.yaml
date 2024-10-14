@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate-job
+spec:
+  activeDeadlineSeconds: 300  # Job должен завершиться в течение 5 минут
+  ttlSecondsAfterFinished: 600  # Job будет автоматически удален через 10 минут после завершения
+  template:
+    spec:
+      containers:
+      - name: django-app
+        image: django_app:latest
+        imagePullPolicy: IfNotPresent
+        command: ["python", "manage.py", "migrate", "--noinput"]
+        envFrom:
+        - secretRef:
+            name: django-env-secret
+      restartPolicy: OnFailure

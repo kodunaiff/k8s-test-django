@@ -169,3 +169,27 @@ kubectl create job --from=cronjob/django-clearsessions dj-clear -n default
 kubectl get jobs
 ```
 
+
+### Работа с Job для выполнения команды migrate
+
+Для запуска management-команд Django, таких как ./manage.py migrate, 
+рекомендуется использовать объекты Kubernetes такие как Job для одноразовых задач 
+или CronJob для периодических задач.
+
+Для запуска команды migrate используйте манифест для Job:
+
+```
+kubectl apply -f migrate_django.yaml
+```
+
+Для проверки логов, нужно узнать имя пода. Выполните следующие команды:
+
+```
+kubectl describe job django-migrate-job
+```
+
+В разделе Events находим имя пода, а дальше:
+ 
+```
+kubectl logs django-migrate-job-t7n4b (замените на ваше имя пода)
+```
