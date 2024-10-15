@@ -14,5 +14,5 @@ spec:
         command: ["python", "manage.py", "migrate", "--noinput"]
         envFrom:
         - secretRef:
-            name: django-env-secret
+            name: django-secret
       restartPolicy: OnFailure

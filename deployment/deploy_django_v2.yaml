@@ -23,7 +23,7 @@ spec:
         
         envFrom:
         - secretRef:
-            name: django-env-secret
+            name: django-secret
 
 
 ---

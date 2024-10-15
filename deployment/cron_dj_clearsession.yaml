@@ -17,5 +17,5 @@ spec:
               command: ["python", "manage.py", "clearsessions"]
               envFrom:
                 - secretRef:
-                    name: django-env-secret
+                    name: django-secret
           restartPolicy: OnFailure 

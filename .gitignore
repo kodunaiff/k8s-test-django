@@ -7,3 +7,4 @@ __pycache__/
 deployment/deploy_django_v1.yaml
 deployment/pod_django.yaml
 deployment/pod_django_v1.yaml
+deployment/черновики

@@ -193,3 +193,54 @@ kubectl describe job django-migrate-job
 ```
 kubectl logs django-migrate-job-t7n4b (замените на ваше имя пода)
 ```
+
+
+### Работа с Базой Данный используя Helm
+
+Установите [Helm](https://github.com/helm/helm/releases)
+
+Добавьте репозиторий чартов Bitnami в Helm, выполнив:
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Обновите информацию о доступных чартах, выполнив:
+```
+helm repo update
+```
+
+Установите PostgreSQL с помощью Helm.
+Вы можете установить PostgreSQL, используя команду helm install.
+
+```
+helm install my-postgres oci://registry-1.docker.io/bitnamicharts/postgresql --set auth.username=kodu --set auth.password=****** --set auth.database=kodudb
+вместо * установите пароль
+```
+
+что бы проверить и зайти в бд  под пользователем используйте команды:
+```
+kubectl exec -it my-postgres-postgresql-0 -- /bin/bash
+psql -U kodu -d kodudb
+далее пароль..
+```
+
+Что бы подключиться к БД измените файл .env:
+```
+DATABASE_URL=postgres://kodu:[your-password]@my-postgres-postgresql:5432/kodudb
+```
+
+Далее обновите Secrets или создайте новый, но тогда не забудьте исправить в манифестах секцию с envFrom
+
+```
+kubectl create secret generic new-django-secret --from-env-file=.env
+```
+
+Теперь обновите Deploy и запустите миграции:
+
+```
+kubectl delete -f deploy_django_v2.yaml
+kubectl apply -f deploy_django_v2.yaml
+kubectl apply -f migrate_django.yaml
+```
+
+Зайдите на сайт, все должно работать.
