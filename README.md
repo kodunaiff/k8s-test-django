@@ -307,7 +307,7 @@ kubectl config set-context --current --namespace=<your-namespace>
 result: Context "*****" modified.
 ```
 
-Запестите манифесты для Deployment и Service:
+Запустите манифесты для Deployment и Service:
 
 ```
 kubectl apply -f nginx-deployment.yaml
@@ -316,3 +316,68 @@ kubectl apply -f nginx-service.yaml
 
 Зайдите на свой Домен и nginx будет доступен:
 https://edu-furious-nobel.sirius-k8s.dvmn.org/
+
+## Подключения к базе данных PostgreSQL используя SSL-сертификат 
+
+PostgreSQL-хосты с публичным доступом поддерживают только шифрованные соединения. Чтобы использовать их, получите SSL-сертификат
+
+Windows(PowerShell):
+```
+mkdir $HOME\.postgresql; curl.exe -o $HOME\.postgresql\root.crt https://storage.yandexcloud.net/cloud-certs/CA.pem
+```
+
+Путь куда будет сохранен сертификат: ```$HOME\.postgresql\root.crt```
+
+Закодируйте ваш сертификат в формат base64
+
+```
+[Convert]::ToBase64String([System.IO.File]::ReadAllBytes("C:\Users\Bato\.postgresql\root.crt")) > ssl_base64.txt
+```
+
+У вас должен появится файл ssl_base64.txt, его содержимое нужно вставить в ямл файл Секрета:
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ssl-cert
+data:
+  root.crt: <содержимое_ssl_base64.txt>
+```
+
+Cохраняем секрет в кластере:
+```
+kubectl apply -f ssl-sert-secret.yaml
+
+Должно получится: secret/ssl-cert created
+
+kubectl get secrets (проверяем секреты)
+```
+
+Создаем Ubuntu с сертификатом:
+
+```
+kubectl apply -f ubuntu-pod-secret.yaml
+```
+
+Для подключения к psql в контенере, выполните следующие команды:
+
+```
+kubectl exec --stdin --tty ubuntu -- /bin/bash
+
+psql -h <host> -p <port> -U <username> -d <database_name> -W
+```
+
+Данные из секрета 'postgres' необходимо получить и раскодировать (команды для PowerShell):
+
+```
+$secretData = kubectl get secret postgres -o jsonpath="{.data}" | ConvertFrom-Json
+
+foreach ($key in $secretData.PSObject.Properties.Name) {
+>>     $decodedValue = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($secretData.$key))
+>>     Write-Output "${key}: $decodedValue"
+>> }
+```
+
+В результате вы получите данные для входа в бд PostgreSQL
+

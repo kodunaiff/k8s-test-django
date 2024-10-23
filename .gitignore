@@ -10,3 +10,4 @@ deployment/pod_django_v1.yaml
 deployment/черновики
 nginx-test/not used/
 nginx-test/simple-pod.yaml
+nginx-test/ssl-sert-secret.yaml
