@@ -244,3 +244,75 @@ kubectl apply -f migrate_django.yaml
 ```
 
 Зайдите на сайт, все должно работать.
+
+## Работа в dev окружении Яндекс Облака.
+
+### Настройка окружения
+
+Перед подключением получите учетные данные для подключения к Yandex Cloud.
+
+- namespace
+- domain
+- database name
+- NodePort
+
+### Установить Интерфейс командной строки Yandex Cloud (CLI)
+
+Для установки с помощью PowerShell, выполните команду:
+
+```
+iex (New-Object System.Net.WebClient).DownloadString('https://storage.yandexcloud.net/yandexcloud-yc/install.ps1')
+```
+
+[Создание профиля](https://yandex.cloud/ru/docs/cli/quickstart#install):
+
+```
+yc init
+```
+
+Вы получите ответ, перейдите по ссылке и получите ключ аутентификации
+
+```
+Please go to https://oauth.yandex.ru/authorize?response_type=token&client_id=*************
+in order to obtain OAuth token.
+```
+Проверяем конфиги (в PowerShell):
+
+```
+yc config list
+```
+
+Добавьте учетные данные в конфигурационный файл kubectl с учетом типа IP-адреса кластера, к которому вы подключаетесь:
+Чтобы получить учетные данные для подключения к публичному IP-адресу кластера через интернет, выполните команду:
+
+```
+yc managed-kubernetes cluster get-credentials --id ************ --external
+```                                                 
+
+Проверяем работу кластера
+
+``` 
+kubectl cluster-info
+kubectl get pods --all-namespaces
+```
+
+Для более простой и интуитивной работы с кластером используйте [Lens Desktop](https://k8slens.dev/)
+
+### Запуск Service и Deployment из манифеста
+
+Вам нужен ваш "namespace" с полными правами, убедитесь, что работаете с ним, командой:
+
+```
+kubectl config set-context --current --namespace=<your-namespace>
+result: Context "*****" modified.
+```
+
+Запестите манифесты для Deployment и Service:
+
+```
+kubectl apply -f nginx-deployment.yaml
+kubectl apply -f nginx-service.yaml
+```
+
+Зайдите на свой Домен и nginx будет доступен:
+https://edu-furious-nobel.sirius-k8s.dvmn.org/

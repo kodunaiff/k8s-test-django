@@ -8,3 +8,5 @@ deployment/deploy_django_v1.yaml
 deployment/pod_django.yaml
 deployment/pod_django_v1.yaml
 deployment/черновики
+nginx-test/not used/
+nginx-test/simple-pod.yaml
