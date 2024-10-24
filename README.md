@@ -120,7 +120,7 @@ DEBUG=True
 ALLOWED_HOSTS=*
 ```
 
-Далее выпоните команду создания "Secret" из этой директории, где лежит файл.
+Далее выполните команду создания "Secret" из этой директории, где лежит файл.
 ``` 
 kubectl create secret generic django-secret --from-env-file=.env 
 ```
@@ -380,4 +380,81 @@ foreach ($key in $secretData.PSObject.Properties.Name) {
 ```
 
 В результате вы получите данные для входа в бд PostgreSQL
+
+
+### Загрузка докер образа на [Docker Hub](https://hub.docker.com/)
+
+
+Соберите образ через докер компос и проверьте его, так же вам нужно будет залогинется:
+
+```
+docker compose build
+
+docker images
+
+docker login
+
+git log -1  (узнать последний хэш коммита)
+```
+
+Вы можете использовать хэш коммита в качестве тега для образа, а затем загрузить этот образ на Docker Hub.
+Тэгируем образ:
+```
+docker tag image_name:tag_name repo_name/image_name:tag_name
+
+docker tag django_app:latest kodunaiff/django_app:f4ffc45f***********
+```
+
+Загрузите образ в Docker Hub:
+
+```
+docker push repo_name/image_name:tag_name
+
+docker push kodunaiff/django_app:f4ffc45f***********
+```
+
+
+### Запуск Django проекта в Yandex Cloud
+
+Создайте файл .env и внесите новые данные для подключения к бд PostgreSQL, получение этих данных я описал выше (вам понадобится "url").
+
+```
+SECRET_KEY=test
+DATABASE_URL=<url>
+DEBUG=True
+ALLOWED_HOSTS=*
+```
+
+Далее выполните команду создания "Secret" из этой директории, где лежит файл.
+``` 
+kubectl create secret generic dj-secret --from-env-file=.env 
+```
+
+Дополните свой манифест файл:
+```
+envFrom:
+        - secretRef:
+            name: dj-secret
+```
+
+Запустите манифесты для Deployment и Service:
+
+```
+kubectl apply -f django-deployment.yaml
+
+kubectl apply -f django-service.yaml
+```
+
+Cоздаем миграции и суперпользователя используя императивный подход:
+
+```
+kubectl exec --stdin --tty django-deployment-7fd68679c-vnk55 -- /bin/bash
+
+python manage.py migrate
+
+python manage.py createsuperuser
+``` 
+			
+Зайдите на свой Домен и Django будет доступен:
+https://edu-furious-nobel.sirius-k8s.dvmn.org/
 

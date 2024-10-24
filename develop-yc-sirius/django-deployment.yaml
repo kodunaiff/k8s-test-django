@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django-image
+        image: kodunaiff/django_app:f4ffc45f84e37506025c5055a59b6694ba301dc1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          
+        envFrom:
+        - secretRef:
+            name: dj-secret  
